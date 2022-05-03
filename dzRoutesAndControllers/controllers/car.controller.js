@@ -20,6 +20,7 @@ module.exports = {
         dbCars.push(req.body);
         res.json('Добавлено машину');
     },
+
     deleteCar: (req, res) => {
         const {carID} = req.params;
         const car = dbCars[carID];
@@ -31,5 +32,4 @@ module.exports = {
         dbCars = dbCars.filter(i => i.id !== Number(carID));
         res.send(dbCars);
     },
-
 }

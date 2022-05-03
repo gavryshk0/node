@@ -29,6 +29,7 @@ module.exports = {
             res.status(404).json('Неможливо видалити не існуючого юзера')
             return;
         }
+
         dbUsers = dbUsers.filter(i => i.id !== Number(userID));
         res.send(dbUsers);
     }
