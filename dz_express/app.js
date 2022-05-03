@@ -22,10 +22,14 @@ app.get('/users', (req, res) => {
 
 app.get('/users/:userID', (req, res) => {
     const {userID} = req.params;
-    if (!dbUsers[userID])
-        res.status(404).json('Юзера не знайдено');
+    const user = dbUsers[userID];
 
-    res.json(dbUsers[userID].name);
+    if (!user) {
+        res.status(404).json('Юзера не знайдено');
+        return;
+    }
+
+    res.json(user.name);
 });
 
 app.get('/cars', (req, res) => {
@@ -34,9 +38,12 @@ app.get('/cars', (req, res) => {
 
 app.get('/cars/:carID', (req, res) => {
     const {carID} = req.params;
+    const car = dbCars[carID];
 
-    if (!dbUsers[carID])
+    if (!car){
         res.status(404).json('Машину не знайдено');
+        return;
+    }
 
-    res.json(dbCars[carID].model);
+    res.json(car.model);
 });
