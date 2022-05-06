@@ -2,34 +2,66 @@ const Car = require("../db/car.model");
 
 module.exports = {
     getAllCars: async (req, res) => {
-        const cars = await Car.find();
-        res.json(cars);
+        try {
+            const cars = await Car.find();
+            res.json(cars);
+        }
+        catch (e) {
+            res.json(e);
+        }
     },
 
     getCarByID: async (req, res) => {
-        const {carID} = req.params;
-        const car = await Car.findById(carID);
+        try {
+            const {carID} = req.params;
+            const car = await Car.findById(carID);
 
-        if (!car) {
-            res.status(404).json('Немає машинки під цим айді');
-            return;
+            if (!car) {
+                res.status(404).json('Немає машинки під цим айді');
+                return;
+            }
+            res.json(car);
         }
-        res.json(car);
+        catch (e) {
+            res.json(e);
+        }
     },
 
     addCar: async (req, res) => {
-        const addCar = await Car.create(req.body);
-        res.status(201).json(addCar);
+        try {
+            const addCar = await Car.create(req.body);
+            res.status(201).json(addCar);
+        }
+        catch (e) {
+            res.json(e);
+        }
+    },
+
+    updateCar: async (req, res) => {
+        try {
+            const {carID} = req.params;
+            const car = await Car.findByIdAndUpdate(carID, req.body);
+
+            res.status(200).json(car);
+        }
+        catch (e) {
+            res.json(e);
+        }
     },
 
     deleteCar: async (req, res) => {
-        const { carID } = req.params;
-        const cars = await Car.findByIdAndDelete(carID);
+        try {
+            const { carID } = req.params;
+            const cars = await Car.findByIdAndDelete(carID);
 
-        if (!cars) {
-            res.status(404).json('Немає машинки під цим айді');
-            return;
+            if (!cars) {
+                res.status(404).json('Немає машинки під цим айді');
+                return;
+            }
+            res.status(204).send();
         }
-        res.status(204).send();
+        catch (e) {
+            res.json(e);
+        }
     },
 };

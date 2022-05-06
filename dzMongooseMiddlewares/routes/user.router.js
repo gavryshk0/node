@@ -11,4 +11,6 @@ userRouter.get('/:userID', userController.getUserByID);
 
 userRouter.post('/', userMiddlewares.checkIsEmailDuplicate, userMiddlewares.checkGender, userController.createUser);
 
+userRouter.patch('/:userID', userController.updateUser);
+
 userRouter.delete('/:userID', userController.deleteUser);
