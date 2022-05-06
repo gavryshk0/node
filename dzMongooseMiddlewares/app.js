@@ -18,7 +18,7 @@ app.use(express.urlencoded({extended: true}));
 app.use('/cars', carsRouter);
 app.use('/users', userRouter);
 
-mongoose.connect(MONGO).then(value => {
+mongoose.connect(MONGO).then(() => {
     console.log('Connection successful');
 });
 
