@@ -59,6 +59,11 @@ module.exports = {
       const { userID } = req.params;
       const user = await User.findByIdAndUpdate(userID, req.body);
 
+      if (!user) {
+        next(new ApiError('Такого користувача не існує', 400));
+        return;
+      }
+
       res.status(200).json(user);
     }
     catch (e) {

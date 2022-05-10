@@ -53,6 +53,11 @@ module.exports = {
       const {carID} = req.params;
       const car = await Car.findByIdAndUpdate(carID, req.body);
 
+      if (!car) {
+        next(new ApiError('Такої машинки не існує', 400));
+        return;
+      }
+
       res.status(200).json(car);
     }
     catch (e) {
