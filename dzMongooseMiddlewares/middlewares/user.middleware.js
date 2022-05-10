@@ -1,39 +1,58 @@
-const User = require('../db/user.model')
+const User = require('../db/user.model');
+const ApiError = require('../error/ApiError');
 
+const checkDoesUserExist = async (req, res, next) => {
+  try {
+    const {userID} = req.params;
+    const currentUser = await User.findById(userID);
+
+    if(!currentUser) {
+      next(new ApiError('Юзера не знайдено', 404));
+      return;
+    }
+
+    req.user = currentUser;
+    next();
+  }
+  catch (e) {
+    next(e);
+  }
+}
 const checkIsEmailDuplicate = async (req, res, next) => {
-    try {
-        const { email = '' } = req.body;
+  try {
+    const { email = '' } = req.body;
+    const isUserPresent = await User.findOne({ email: email.toLowerCase().trim()});
 
-        const isUserPresent = await User.findOne({ email: email.toLowerCase().trim()});
-
-        if (isUserPresent) {
-            res.status(409).json("Юзер із цією електронною адресою вже існує");
-            return;
-        }
-
-        next();
+    if (isUserPresent) {
+      next(new ApiError('Юзер із цією електронною адресою вже існує', 409))
+      return;
     }
-    catch (e) {
-        res.json(e);
-    }
+
+    next();
+  }
+  catch (e) {
+    next(e);
+  }
 }
 
 const checkGender = (req, res, next) => {
-    try {
-        const {gender} = req.body;
+  try {
+    const {gender} = req.body;
 
-        if (gender !== 'female' && gender !== 'male') {
-            res.status(409).json('Стать може бути тільки чоловічою або жіночою');
-        }
+    if (gender !== 'female' && gender !== 'male') {
+      next(new ApiError('Стать може бути тільки чоловічою або жіночою', 409));
+      return;
+    }
 
-        next()
-    }
-    catch (e) {
-        res.json(e);
-    }
+    next()
+  }
+  catch (e) {
+    next(e);
+  }
 }
 
 module.exports = {
-    checkIsEmailDuplicate,
-    checkGender
+  checkDoesUserExist,
+  checkIsEmailDuplicate,
+  checkGender
 }

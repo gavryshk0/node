@@ -1,55 +1,75 @@
 const Car = require('../db/car.model');
+const ApiError = require('../error/ApiError');
+
+const checkDoesCarExist = async (req, res, next) => {
+  try {
+    const {carID} = req.params;
+    const currentCar = await Car.findById(carID);
+
+    if (!currentCar) {
+      next(new ApiError('Машинку не знайдено', 404));
+      return;
+    }
+
+    req.car = currentCar;
+    next();
+  }
+  catch (e) {
+    next(e);
+  }
+}
 
 const checkField = (req, res, next) => {
-    try {
-        const {model, year} = req.body;
+  try {
+    const {model, year} = req.body;
 
-        if (!model || !year) {
-            res.json('Базові поля мають бути заповнені');
-            return;
-        }
+    if (!model || !year) {
+      next(new ApiError('Базові поля мають бути заповнені', 409));
+      return;
+    }
 
-        next();
-    }
-    catch (e) {
-        res.json(e);
-    }
+    next();
+  }
+  catch (e) {
+    next(e);
+  }
 };
 
 const checkID = async (req, res, next) => {
-    try {
-        const {carID} = req.params;
-        const isIDExist = await Car.findOne({_id:{carID}});
+  try {
+    const {carID} = req.params;
+    const isIDExist = await Car.findOne({_id:{carID}});
 
-        if (!isIDExist) {
-            res.status(404).json('Машинку не знайдено');
-            return;
-        }
-        next();
+    if (!isIDExist) {
+      next(new ApiError('Машинку не знайдено', 404));
+      return;
     }
-    catch (e) {
-        res.json(e);
-    }
+    next();
+  }
+  catch (e) {
+    next(e);
+  }
 }
 
-const checkCarYear = async (req, res, next) => {
-    try {
-        const {year = ''} = req.body;
+const checkCarYear = (req, res, next) => {
+  try {
+    const {year = ''} = req.body;
 
-        if (year < 1980 && year > 2022)
-        {
-            res.status(409).json('Рік недійсний')
-            return;
-        }
-        next()
+    if (year < 1980 && year > 2022)
+    {
+      next(new ApiError('Рік недійсний', 409));
+      return;
     }
-    catch (e) {
-        res.json(e);
-    }
+    next()
+  }
+  catch (e) {
+    next(e);
+  }
 }
 
 module.exports = {
-    checkField,
-    checkID,
-    checkCarYear
+  checkDoesCarExist,
+  checkField,
+  checkID,
+  checkCarYear
 }

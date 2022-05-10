@@ -1,67 +1,78 @@
-const Car = require("../db/car.model");
+const Car = require('../db/car.model');
+const ApiError = require('../error/ApiError');
 
 module.exports = {
-    getAllCars: async (req, res) => {
-        try {
-            const cars = await Car.find();
-            res.json(cars);
-        }
-        catch (e) {
-            res.json(e);
-        }
-    },
+  getCarPage: async (req, res, next) => {
+    try {
+      const {limit = 20, page = 1} = req.query;
+      const skip = (page - 1) * limit;
+      const cars = await Car.find().limit(limit).skip(skip);
+      const count = await Car.count({})
 
-    getCarByID: async (req, res) => {
-        try {
-            const {carID} = req.params;
-            const car = await Car.findById(carID);
+      res.json({
+        page,
+        perPage: limit,
+        count,
+        data: cars
+      });
+    }
+    catch (e) {
+      next(e);
+    }
+  },
 
-            if (!car) {
-                res.status(404).json('Немає машинки під цим айді');
-                return;
-            }
-            res.json(car);
-        }
-        catch (e) {
-            res.json(e);
-        }
-    },
+  getCarByID: async (req, res, next) => {
+    try {
+      const {carID} = req.params;
+      const car = await Car.findById(carID);
 
-    addCar: async (req, res) => {
-        try {
-            const addCar = await Car.create(req.body);
-            res.status(201).json(addCar);
-        }
-        catch (e) {
-            res.json(e);
-        }
-    },
+      if (!car) {
+        next(new ApiError('Немає машинки під цим айді', 404));
+        return;
+      }
 
-    updateCar: async (req, res) => {
-        try {
-            const {carID} = req.params;
-            const car = await Car.findByIdAndUpdate(carID, req.body);
+      res.json(car);
+    }
+    catch (e) {
+      next(e);
+    }
+  },
 
-            res.status(200).json(car);
-        }
-        catch (e) {
-            res.json(e);
-        }
-    },
+  addCar: async (req, res, next) => {
+    try {
+      const addCar = await Car.create(req.body);
+      res.status(201).json(addCar);
+    }
+    catch (e) {
+      next(e);
+    }
+  },
 
-    deleteCar: async (req, res) => {
-        try {
-            const { carID } = req.params;
-            const cars = await Car.findByIdAndDelete(carID);
+  updateCar: async (req, res, next) => {
+    try {
+      const {carID} = req.params;
+      const car = await Car.findByIdAndUpdate(carID, req.body);
 
-            if (!cars) {
-                res.status(404).json('Немає машинки під цим айді');
-                return;
-            }
-            res.status(204).send();
-        }
-        catch (e) {
-            res.json(e);
-        }
-    },
+      res.status(200).json(car);
+    }
+    catch (e) {
+      next(e);
+    }
+  },
+
+  deleteCar: async (req, res, next) => {
+    try {
+      const { carID } = req.params;
+      const cars = await Car.findByIdAndDelete(carID);
+
+      if (!cars) {
+        next(new ApiError('Немає машинки під цим айді', 404));
+        return;
+      }
+      res.status(204).send();
+    }
+    catch (e) {
+      next(e);
+    }
+  },
 };
