@@ -1,10 +1,15 @@
-const Car = require('../db/car.model');
+const {Car} = require('../db');
 const ApiError = require('../error/ApiError');
 
 module.exports = {
   getCarPage: async (req, res, next) => {
     try {
-      const {limit = 20, page = 1} = req.query;
+      const {limit , page} = req.query;
+
+      if (limit < 0 || page < 0) {
+        next(new ApiError('Недійсне значення', 400));
+        return;
+      }
       const skip = (page - 1) * limit;
       const cars = await Car.find().limit(limit).skip(skip);
       const count = await Car.count({})
@@ -52,11 +57,6 @@ module.exports = {
     try {
       const {carID} = req.params;
       const car = await Car.findByIdAndUpdate(carID, req.body);
-
-      if (!car) {
-        next(new ApiError('Такої машинки не існує', 400));
-        return;
-      }
 
       res.status(200).json(car);
     }

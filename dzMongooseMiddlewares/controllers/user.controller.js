@@ -1,12 +1,17 @@
-const User = require('../db/user.model');
+const {User} = require('../db');
+const {authService} = require('../services');
 const ApiError = require('../error/ApiError');
 
 module.exports = {
   getUserPage: async (req, res, next) => {
     try {
-      const { limit = 20, page = 1 } = req.query;
-      const skip = (page - 1) * limit;
+      const { limit, page } = req.query;
 
+      if (limit < 0 || page < 0) {
+        next(new ApiError('Недійсне значення', 400));
+        return;
+      }
+      const skip = (page - 1) * limit;
       const users = await User.find().limit(limit).skip(skip);
       const count = await User.count({});
 
@@ -46,8 +51,9 @@ module.exports = {
 
   createUser: async (req, res, next) => {
     try {
-      const createdUser = await User.create(req.body);
-      res.status(201).json(createdUser);
+      const hashPassword = await authService.hashPassword(req.body.password);
+      const createdUser = await User.create({...req.body, password: hashPassword});
+      res.json(createdUser);
     }
     catch (e) {
       next(e);
@@ -59,12 +65,7 @@ module.exports = {
       const { userID } = req.params;
       const user = await User.findByIdAndUpdate(userID, req.body);
 
-      if (!user) {
-        next(new ApiError('Такого користувача не існує', 400));
-        return;
-      }
-
-      res.status(200).json(user);
+      res.json(user);
     }
     catch (e) {
       next(e);

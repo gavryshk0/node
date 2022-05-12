@@ -13,10 +13,10 @@ userRouter.get('/pages', userController.getUserPage);
 
 userRouter.get('/', userController.getAllUser);
 
-userRouter.post('/', userMiddlewares.checkIsEmailDuplicate, userMiddlewares.checkGender, userController.createUser);
+userRouter.post('/', userMiddlewares.userValidate, userMiddlewares.checkIsEmailDuplicate, userController.createUser);
 
 userRouter.get('/:userID', userController.getUserByID);
 
-userRouter.patch('/:userID', userController.updateUser);
+userRouter.patch('/:userID', userMiddlewares.checkGender, userMiddlewares.checkDoesUserExist, userController.updateUser);
 
 userRouter.delete('/:userID', userController.deleteUser);

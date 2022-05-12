@@ -1,5 +1,23 @@
-const User = require('../db/user.model');
+const { User } = require('../db');
+const { userValidator } = require('../validators');
 const ApiError = require('../error/ApiError');
+
+const userValidate = (req, res, next) => {
+  try {
+    const {error, value} = userValidator.newUserJoiSchema.validate(req.body);
+
+    if (error.message) {
+      next(new ApiError(error.details[0].message, 400));
+      return;
+    }
+
+    req.body = value;
+    next();
+  }
+  catch (e) {
+    next(e);
+  }
+}
 
 const checkDoesUserExist = async (req, res, next) => {
   try {
@@ -18,6 +36,7 @@ const checkDoesUserExist = async (req, res, next) => {
     next(e);
   }
 }
+
 const checkIsEmailDuplicate = async (req, res, next) => {
   try {
     const { email = '' } = req.body;
@@ -52,6 +71,7 @@ const checkGender = (req, res, next) => {
 }
 
 module.exports = {
+  userValidate,
   checkDoesUserExist,
   checkIsEmailDuplicate,
   checkGender

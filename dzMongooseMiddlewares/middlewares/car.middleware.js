@@ -1,5 +1,23 @@
-const Car = require('../db/car.model');
+const { Car } = require('../db');
+const { carValidator } = require('../validators');
 const ApiError = require('../error/ApiError');
+
+const carValidate = (req, res, next) => {
+  try {
+    const {error, value} = carValidator.newCarJoiSchema.validate(req.body);
+
+    if (error.message) {
+      next(new ApiError(error.details[0].message, 400));
+      return;
+    }
+
+    req.body = value;
+    next();
+  }
+  catch (e) {
+    next(e);
+  }
+}
 
 const checkDoesCarExist = async (req, res, next) => {
   try {
@@ -68,6 +86,7 @@ const checkCarYear = (req, res, next) => {
 }
 
 module.exports = {
+  carValidate,
   checkDoesCarExist,
   checkField,
   checkID,

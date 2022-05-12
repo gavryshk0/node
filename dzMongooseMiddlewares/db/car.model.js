@@ -1,6 +1,6 @@
-const { Schema, model } = require("mongoose");
+const { Schema, model } = require('mongoose');
 
-const carModelsEnum = require("../constants/car-models.enum");
+const {carModelsEnum} = require('../constants');
 
 const Car = new Schema({
   model: { type: String, trim: true, uppercase: true, required: true, enum: Object.values(carModelsEnum)},
