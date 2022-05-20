@@ -16,7 +16,8 @@ module.exports = {
         ...token,
         user
       });
-    } catch (e) {
+    }
+    catch (e) {
       next(e)
     }
   },
@@ -26,7 +27,8 @@ module.exports = {
       await Auth.deleteMany({user_id: req.authUser._id});
 
       res.json('ok');
-    } catch (e) {
+    }
+    catch (e) {
       next(e);
     }
   },
