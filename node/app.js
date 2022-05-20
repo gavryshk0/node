@@ -9,7 +9,7 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 
-const ApiError = require('./error/ApiError');
+const { ApiError }= require('./error');
 const { carRouter, userRouter } = require('./routes');
 
 const {PORT, MONGO_URL} = require('./config/config');

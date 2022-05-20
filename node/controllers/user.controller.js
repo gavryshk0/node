@@ -1,16 +1,13 @@
 const {User} = require('../db');
 const {authService} = require('../services');
-const ApiError = require('../error/ApiError');
+const { ApiError } = require('../error');
+const {userErrorsEnum, statusCode} = require('../constants')
 
 module.exports = {
   getUserPage: async (req, res, next) => {
     try {
       const { limit, page } = req.query;
 
-      if (limit < 0 || page < 0) {
-        next(new ApiError('Недійсне значення', 400));
-        return;
-      }
       const skip = (page - 1) * limit;
       const users = await User.find().limit(limit).skip(skip);
       const count = await User.count({});
@@ -21,15 +18,6 @@ module.exports = {
         data: users,
         count
       });
-    } catch (e) {
-      next(e);
-    }
-  },
-
-  getAllUser: async (req, res, next) => {
-    try {
-      const users = await User.find();
-      res.json(users);
     }
     catch (e) {
       next(e);
@@ -39,7 +27,7 @@ module.exports = {
   getUserByID: (req, res, next) => {
     try {
       if (!req.user) {
-        next(new ApiError('Юзера не знайдено', 404))
+        next(new ApiError(userErrorsEnum.notFoundUser, statusCode.notFoundStatus))
         return;
       }
       res.json(req.user);
@@ -62,10 +50,16 @@ module.exports = {
 
   updateUser: async (req, res, next) => {
     try {
-      const { userID } = req.params;
-      const user = await User.findByIdAndUpdate(userID, req.body);
+      const { userID, name, email, password, gender, age } = req.params;
+      const userUpdate = await User.findByIdAndUpdate(userID,{
+        name,
+        age,
+        email,
+        password,
+        gender
+      });
 
-      res.json(user);
+      res.json(userUpdate);
     }
     catch (e) {
       next(e);
@@ -78,7 +72,7 @@ module.exports = {
       const user = await User.findByIdAndDelete(userID);
 
       if (!user) {
-        next(new ApiError('Неможливо видалити не існуючого юзера', 400));
+        next(new ApiError(userErrorsEnum.notValidIDDel, statusCode.badRequestStatus));
         return;
       }
 
