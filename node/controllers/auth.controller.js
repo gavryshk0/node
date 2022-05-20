@@ -38,11 +38,11 @@ module.exports = {
 
       await Auth.deleteOne({ refresh_token });
 
-      const newTokenPair = authService.generateToken();
-      await Auth.create({ user_id: authUser._id, ...newTokenPair });
+      const newToken = authService.generateToken();
+      await Auth.create({ user_id: authUser._id, ...newToken });
 
       res.json({
-        ...newTokenPair,
+        ...newToken,
         authUser
       });
     }
