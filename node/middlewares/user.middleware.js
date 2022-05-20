@@ -8,7 +8,7 @@ const userValidate = (req, res, next) => {
     const {error, value} = userValidator.newUserSchema.validate(req.body);
 
     if (error.message) {
-      next(new ApiError(error.details[0].message, 400));
+      next(new ApiError(error.details[0].message, statusCode.badRequestStatus));
       return;
     }
 
